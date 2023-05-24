@@ -1,0 +1,17 @@
+<header>
+  <div class="flex items-center justify-between">
+    <a class="text-2xl font-bold text-gray-900" [routerLink]="['/']">
+      SmartBikeRental
+    </a>
+    <nav>
+      <ul class="space-x-4 flex">
+        <li
+          [routerLinkActive]="['link-active']"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <a class="nav-link text-dark" [routerLink]="['/']">Početna</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
