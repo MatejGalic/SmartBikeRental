@@ -8,10 +8,7 @@ builder.Services.AddControllersWithViews();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-{
-    options.AddSignalRSwaggerGen();
-});
+builder.Services.AddSwaggerGen();
 
 // Read AllowedOrigins from appsettings.json
 var corsSettings = builder.Configuration.GetSection("CorsSettings").GetSection("AllowedOrigins");

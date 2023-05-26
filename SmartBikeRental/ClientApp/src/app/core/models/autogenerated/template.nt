@@ -1,0 +1,28 @@
+{{- for dto in data.Classes | Symbols.WhereNamespaceStartsWith "SmartBikeRental.Models.DTOs"
+        capture output
+-}}
+{{-  for dependency in dto | Type.AllReferencedTypes }}
+import { {{ dependency.BareName }} } from "{{ dependency.FullName }}";
+{{- end }}
+
+export class {{ dto.Name }} {{- if dto.HasBaseClass }} extends {{ dto.BaseClass.Name; end }}
+{
+{{- for prop in dto.Properties }}
+    {{ prop.Name | String.ToCamelCase }}: {{ prop.Type | Type.ToTypeScriptType }};
+{{- end }}
+
+    constructor(
+    {{- for prop in dto.Properties }}
+        {{- prop.Name | String.ToCamelCase }}: {{ prop.Type | Type.ToTypeScriptType }} = null, 
+    {{- end }})
+    {
+    {{  if dto.HasBaseClass }}    super(); {{-end }}
+    {{- for prop in dto.Properties }}
+        this.{{ prop.Name | String.ToCamelCase }} = {{ prop.Name | String.ToCamelCase }};
+    {{- end }}
+    }
+}
+{{-     end
+   Save output ("dtos/" + (dto.Name | String.ToCamelCase) + ".ts")
+   end
+}}
