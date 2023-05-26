@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import * as L from 'leaflet';
-import { Subject, of, switchMap, takeUntil, timer } from 'rxjs';
+import { Subject, of, switchMap, takeUntil } from 'rxjs';
+import { SignalRService } from 'src/app/core/services/signal-r.service';
 
 @Component({
   selector: 'app-bike-rent-map',
@@ -21,10 +22,7 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
     new DeviceData(),
   ];
 
-  // signalR data mock
-  private testDataStream = timer(3000, 3000).pipe(
-    switchMap((e) => of(this.generateRandomDeviceData()))
-  );
+  constructor(private signalR: SignalRService) {}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -32,16 +30,24 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.testDataStream.pipe(takeUntil(this.destroy$)).subscribe((devices) => {
-      // update device info in popup
-      this.popups.forEach((p, i) => {
-        const device = devices[i];
-        p.setContent(`<h1>Device #${i}</h1>
-        ${device.lat} <br>
-        Is locked: ${device.locked}`);
-        p.setLatLng([device.lat, device.lng]);
+    this.signalR.startConnection();
+    this.signalR.addDataListener();
+
+    this.signalR.devices$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((e) => of(this.generateRandomDeviceData()))
+      )
+      .subscribe((devices) => {
+        // update device info in popup
+        this.popups.forEach((p, i) => {
+          const device = devices[i];
+          p.setContent(`<h1>Device #${i}</h1>
+          ${device.lat} <br>
+          Is locked: ${device.locked}`);
+          p.setLatLng([device.lat, device.lng]);
+        });
       });
-    });
   }
 
   // used for testing

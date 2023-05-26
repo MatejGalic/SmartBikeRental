@@ -5,10 +5,17 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 export function getBaseUrl() {
-  return environment.apiUrl;
+  return environment.baseUrl + '/api';
 }
 
-const providers = [{ provide: 'BASE_URL', useFactory: getBaseUrl, deps: [] }];
+export function getHubUrl() {
+  return environment.baseUrl + '/hub';
+}
+
+const providers = [
+  { provide: 'API_URL', useFactory: getBaseUrl, deps: [] },
+  { provide: 'HUB_URL', useFactory: getHubUrl, deps: [] },
+];
 
 if (environment.production) {
   enableProdMode();
