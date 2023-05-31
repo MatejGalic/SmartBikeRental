@@ -13,7 +13,7 @@
         {
             _action = action;
             _autoResetEvent = new AutoResetEvent(false);
-            _timer = new Timer(new TimerCallback(Execute), _autoResetEvent, 1000, 2000);
+            _timer = new Timer(new TimerCallback(Execute), _autoResetEvent, 1000, 5000);
             TimerStarted = DateTime.Now;
         }
 
