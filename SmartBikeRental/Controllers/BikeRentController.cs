@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using SmartBikeRental.Helpers;
 using SmartBikeRental.Hubs;
+using SmartBikeRental.Models.DTOs;
 
 namespace SmartBikeRental.Controllers
 {
@@ -22,7 +23,15 @@ namespace SmartBikeRental.Controllers
         [HttpGet("mock-stream-with-timer")]
         public IActionResult SendDeviceDataToAll()
         {
-            var timerManager = new TimerManager(() => _hub.Clients.All.SendAsync("DeviceData", new { newDate = DateTime.Now }));
+            var mockDevice = new DeviceDto();
+            var mockData = new List<DeviceDto>
+            {
+                mockDevice,
+                mockDevice,
+                mockDevice,
+                mockDevice
+            };
+            var timerManager = new TimerManager(() => _hub.Clients.All.SendAsync("DeviceData", mockData));
             //_hub.Clients.All.SendAsync("DeviceData", new { newDate = DateTime.Now });
 
             return Ok(new { Message = "Request completed" });

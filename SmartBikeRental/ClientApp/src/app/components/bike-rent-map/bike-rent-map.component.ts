@@ -30,9 +30,6 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.signalR.startConnection();
-    this.signalR.addDataListener();
-
     this.signalR.devices$
       .pipe(
         takeUntil(this.destroy$),

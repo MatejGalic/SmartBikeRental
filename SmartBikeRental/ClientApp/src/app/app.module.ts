@@ -10,6 +10,7 @@ import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { SharedModule } from './core/modules/shared.module';
 import { HomeComponent } from './pages/home/home.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { BikeLockersComponent } from './components/bike-lockers/bike-lockers.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { NotFoundComponent } from './pages/not-found/not-found.component';
     HomeComponent,
     NotFoundComponent,
     BikeRentMapComponent,
+    BikeLockersComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

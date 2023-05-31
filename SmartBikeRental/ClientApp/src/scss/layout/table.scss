@@ -1,0 +1,20 @@
+table {
+  @apply divide-y divide-gray-200;
+
+  thead {
+    @apply text-left;
+  }
+
+  tr:nth-child(even) {
+    @apply bg-gray-50;
+  }
+
+  tr:nth-child(odd) {
+    @apply bg-white;
+  }
+
+  td,
+  th {
+    @apply py-2 px-4 text-sm text-gray-700 whitespace-nowrap;
+  }
+}

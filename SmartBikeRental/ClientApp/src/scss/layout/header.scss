@@ -1,0 +1,10 @@
+header {
+  @apply bg-white shadow-md py-4 px-8 fixed w-full z-[1100];
+
+  nav ul li a {
+    @apply text-gray-600 hover:text-gray-900;
+    &.link-active {
+      @apply text-gray-900;
+    }
+  }
+}
