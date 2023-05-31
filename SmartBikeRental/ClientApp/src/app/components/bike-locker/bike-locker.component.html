@@ -1,0 +1,45 @@
+<div
+  class="rounded shadow-md p-2 flex flex-row gap-3 justify-between"
+  [ngClass]="{
+    'bg-red-300': device.isLocked,
+    'bg-green-200': !device.isLocked
+  }"
+>
+  <div>
+    <p>Device: {{ device.deviceName }}</p>
+    <p>
+      Coords: {{ device.latitude | number : "1.2-2" }}
+      {{ device.longitude | number : "1.2-2" }}
+    </p>
+    <p>Status: {{ device.isLocked ? "Taken" : "Available" }}</p>
+  </div>
+
+  <div class="flex flex-col justify-center items-center text-center">
+    <ng-container *ngIf="device.isLocked; else unlocked">
+      <button
+        type="button"
+        [disabled]="loading"
+        class="button-delete w-24 flex flex-col !text-neutral-900 disabled:!bg-red-500 disabled:opacity-40"
+        (click)="unlockDevice()"
+      >
+        <img
+          *ngIf="loading"
+          class="w-10 h-10"
+          src="assets/images/spinners/spinner-btn.svg"
+        />
+        <img
+          *ngIf="!loading"
+          class="w-10 h-10"
+          src="assets/images/icons/locked-dark.svg"
+        />
+
+        <p>Unlock</p>
+      </button>
+    </ng-container>
+    <ng-template #unlocked>
+      <div class="w-24 flex flex-col items-center text-center">
+        <img class="w-10 h-10" src="assets/images/icons/unlocked-dark.svg" />
+      </div>
+    </ng-template>
+  </div>
+</div>

@@ -11,6 +11,7 @@ import { SharedModule } from './core/modules/shared.module';
 import { HomeComponent } from './pages/home/home.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { BikeLockersComponent } from './components/bike-lockers/bike-lockers.component';
+import { BikeLockerComponent } from './components/bike-locker/bike-locker.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { BikeLockersComponent } from './components/bike-lockers/bike-lockers.com
     NotFoundComponent,
     BikeRentMapComponent,
     BikeLockersComponent,
+    BikeLockerComponent,
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

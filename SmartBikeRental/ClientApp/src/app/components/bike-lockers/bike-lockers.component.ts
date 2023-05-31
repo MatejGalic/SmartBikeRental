@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { SignalRService } from 'src/app/core/services/signal-r.service';
 
 @Component({
@@ -6,9 +6,7 @@ import { SignalRService } from 'src/app/core/services/signal-r.service';
   templateUrl: './bike-lockers.component.html',
   styleUrls: ['./bike-lockers.component.scss'],
 })
-export class BikeLockersComponent implements OnInit {
+export class BikeLockersComponent {
   public devices$ = this.signalR.devices$;
   constructor(private signalR: SignalRService) {}
-
-  ngOnInit(): void {}
 }
