@@ -1,7 +1,13 @@
 <div class="flex flex-col gap-2">
   <h1 class="text-xl font-medium">SmartBike spaces:</h1>
-  <app-bike-locker
-    *ngFor="let device of devices$ | async"
-    [device]="device"
-  ></app-bike-locker>
+  <ng-container *ngIf="devices$ | async as devices">
+    <ng-container *ngIf="devices.length != 0; else noData">
+      <app-bike-locker
+        *ngFor="let device of devices"
+        [device]="device"
+      ></app-bike-locker>
+    </ng-container>
+  </ng-container>
+
+  <ng-template #noData> Loading... </ng-template>
 </div>
