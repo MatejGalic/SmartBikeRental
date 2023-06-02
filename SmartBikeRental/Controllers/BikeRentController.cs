@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.SignalR;
 using SmartBikeRental.Helpers;
 using SmartBikeRental.Hubs;
+using SmartBikeRental.Middleware;
 using SmartBikeRental.Models.DTOs;
+using System.Text.Json;
 
 namespace SmartBikeRental.Controllers
 {
@@ -12,11 +14,15 @@ namespace SmartBikeRental.Controllers
     {
         private readonly ILogger<BikeRentController> _logger;
         private readonly IHubContext<BikeRentHub> _hub;
+        private readonly IMqttClientWrapper _mqttClient;
+        private readonly IConfiguration _configuration;
 
-        public BikeRentController(ILogger<BikeRentController> logger, IHubContext<BikeRentHub> hub)
+        public BikeRentController(ILogger<BikeRentController> logger, IHubContext<BikeRentHub> hub, IMqttClientWrapper mqttClient, IConfiguration configuration)
         {
             _logger = logger;
             _hub = hub;
+            _mqttClient = mqttClient;
+            _configuration = configuration;
         }
 
         // used for testing SignalR through Swagger, refactor later
@@ -35,6 +41,22 @@ namespace SmartBikeRental.Controllers
             //_hub.Clients.All.SendAsync("DeviceData", new { newDate = DateTime.Now });
 
             return Ok(new { Message = "Request completed" });
+        }
+
+        [HttpPost("unlock/{id}")]
+        public IActionResult UnlockBike(string id)
+        {            
+            _mqttClient.PublishToTopic(id);
+
+            return Ok(new { Message = "Request completed" });
+        }
+
+
+        [HttpGet("devices")]
+        public IActionResult GetDevices()
+        {
+            var devices = _mqttClient.getDevices();
+            return Ok(new { Devices = devices });
         }
     }
 }

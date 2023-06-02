@@ -3,8 +3,8 @@
     public class DeviceDto
     {
         public string DeviceName { get; set; } = String.Empty;
-        public bool IsLocked { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public bool BikeRentalLED { get; set; }
+        public double BikeRentalLatitude { get; set; }
+        public double BikeRentalLongitude { get; set; }
     }
 }

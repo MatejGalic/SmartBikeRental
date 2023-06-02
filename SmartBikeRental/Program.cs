@@ -1,4 +1,6 @@
+using SmartBikeRental.Helpers;
 using SmartBikeRental.Hubs;
+using SmartBikeRental.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddControllersWithViews();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<IMqttClientWrapper, MqttClientWrapper>();
 
 // Read AllowedOrigins from appsettings.json
 var corsSettings = builder.Configuration.GetSection("CorsSettings").GetSection("AllowedOrigins");
@@ -51,6 +55,17 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
 app.MapHub<BikeRentHub>("hub");
+
+
+
+var mqttClient = app.Services.GetRequiredService<IMqttClientWrapper>();
+mqttClient.Connect(Guid.NewGuid().ToString());
+mqttClient.SubscribeToTopic("all");
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    mqttClient.Disconnect();
+});
 
 
 app.MapFallbackToFile("index.html");
