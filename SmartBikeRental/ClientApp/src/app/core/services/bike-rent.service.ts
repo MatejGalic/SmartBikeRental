@@ -13,18 +13,18 @@ export class BikeRentService {
     this.apiUrl = apiUrl + '/BikeRent';
   }
 
-  //TODO: finish method
   public unlockDevice(deviceId: string): Observable<any> {
-    return this.http.post<boolean>(this.apiUrl, deviceId).pipe(
-      catchError((err) => of(null)),
-      map((e) => !!e)
-    );
+    return this.http
+      .post<boolean>(`${this.apiUrl}/unlock/${deviceId}`, deviceId)
+      .pipe(
+        catchError((err) => of(null)),
+        map((e) => !!e)
+      );
   }
 
-  //TODO: finish method
   public getDevices(): Observable<DeviceDto[]> {
     return this.http
-      .get<DeviceDto[]>(this.apiUrl)
+      .get<DeviceDto[]>(`${this.apiUrl}/devices`)
       .pipe(catchError((err) => of([])));
   }
 }

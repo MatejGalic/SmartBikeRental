@@ -116,7 +116,7 @@ public class MqttClientWrapper : IMqttClientWrapper
         var message = Encoding.Default.GetString(e.Message);
         Console.WriteLine($"Received message on topic: {e.Topic}, Message: {message}");
 
-        if(message != null)
+        if (message != null)
         {
             MessageDto data = JsonConvert.DeserializeObject<MessageDto>(message)!;
             List<ContentNodeDto> newNodes = data.ContentNodes;
@@ -124,7 +124,7 @@ public class MqttClientWrapper : IMqttClientWrapper
             UpdateNewNodes(newNodes);
             var devices = GetDevices();
 
-            _hub.Clients.All.SendAsync("DeviceData", new { Devices = devices });
+            _hub.Clients.All.SendAsync("DeviceData", devices);
         }
 
 
@@ -139,18 +139,25 @@ public class MqttClientWrapper : IMqttClientWrapper
 
             if (existingNode != null)
             {
-                existingNode = updatedNode;
+                //existingNode = updatedNode;
+
+                var idx = contentNodes.FindIndex(n => n == existingNode);
+                if (idx != -1)
+                {
+                    contentNodes.Remove(existingNode);
+                    contentNodes.Add(updatedNode);
+                }
             }
         }
     }
 
-    private  List<DeviceDto> GetDevices()
+    private List<DeviceDto> GetDevices()
     {
-        if(!contentNodes.Any())
+        if (!contentNodes.Any())
         {
             fillNodes();
         }
-        
+
 
         var deviceNames = contentNodes.Select(n => n.Source.GatewayGroup).Distinct().ToList();
 
@@ -169,7 +176,7 @@ public class MqttClientWrapper : IMqttClientWrapper
             devices.Add(device);
         }
 
-        return devices;
+        return devices.OrderBy(e => e.DeviceName).ToList();
     }
 
 

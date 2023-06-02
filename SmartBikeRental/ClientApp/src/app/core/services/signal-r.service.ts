@@ -21,26 +21,25 @@ export class SignalRService {
 
   //#region Device data
   private _devices$ = new BehaviorSubject<DeviceDto[]>(null);
-  public devices$ = this._devices$
-    .asObservable()
-    //test only
-    .pipe(
-      filter((e) => !!e),
-      tap((ds) => {
-        ds.forEach((el, indx) => {
-          const maxLat = 46;
-          const minLat = 44;
-          const maxLng = 16;
-          const minLng = 14;
+  public devices$ = this._devices$.asObservable();
+  //test only
+  // .pipe(
+  //   filter((e) => !!e),
+  //   tap((ds) => {
+  //     ds.forEach((el, indx) => {
+  //       const maxLat = 46;
+  //       const minLat = 44;
+  //       const maxLng = 16;
+  //       const minLng = 14;
 
-          el.latitude = Math.random() * (maxLat - minLat) + minLat;
-          el.longitude = Math.random() * (maxLng - minLng) + minLng;
-          el.deviceName = `#${indx}`;
-          el.isLocked = Math.random() >= 0.5;
-        });
-      }),
-      share()
-    );
+  //       el.bikeRentalLatitude = Math.random() * (maxLat - minLat) + minLat;
+  //       el.bikeRentalLongitude = Math.random() * (maxLng - minLng) + minLng;
+  //       el.deviceName = `#${indx}`;
+  //       el.bikeRentalLED = Math.random() >= 0.5;
+  //     });
+  //   }),
+  //   share()
+  // );
 
   get devices() {
     return this._devices$.value;

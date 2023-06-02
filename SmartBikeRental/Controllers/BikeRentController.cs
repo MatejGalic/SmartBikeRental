@@ -56,7 +56,8 @@ namespace SmartBikeRental.Controllers
         public IActionResult GetDevices()
         {
             var devices = _mqttClient.getDevices();
-            return Ok(new { Devices = devices });
+            
+            return Ok(devices);
         }
     }
 }

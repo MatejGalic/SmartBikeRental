@@ -17,12 +17,12 @@ export class BikeLockerComponent {
   public unlockDevice() {
     this.loading = true;
 
-    timer(1000) //simulate delay
+    timer(100) //simulate delay
       .pipe(
         switchMap((e) =>
           this.bikeRentService.unlockDevice(this.device.deviceName).pipe(
             tap((e) => {
-              this.loading = false;
+              // this.loading = false;
             })
           )
         )

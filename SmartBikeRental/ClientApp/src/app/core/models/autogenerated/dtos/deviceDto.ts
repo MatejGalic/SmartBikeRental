@@ -3,16 +3,16 @@
 export class DeviceDto
 {
     deviceName: string;
-    isLocked: boolean;
-    latitude: number;
-    longitude: number;
+    bikeRentalLED: boolean;
+    bikeRentalLatitude: number;
+    bikeRentalLongitude: number;
 
-    constructor(deviceName: string = null,isLocked: boolean = null,latitude: number = null,longitude: number = null,)
+    constructor(deviceName: string = null,bikeRentalLED: boolean = null,bikeRentalLatitude: number = null,bikeRentalLongitude: number = null,)
     {
     
         this.deviceName = deviceName;
-        this.isLocked = isLocked;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.bikeRentalLED = bikeRentalLED;
+        this.bikeRentalLatitude = bikeRentalLatitude;
+        this.bikeRentalLongitude = bikeRentalLongitude;
     }
 }

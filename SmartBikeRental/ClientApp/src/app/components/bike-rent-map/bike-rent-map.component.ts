@@ -81,19 +81,19 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
         this.renderer.removeClass(el, lockedClass);
         this.renderer.removeClass(el, unlockedClass);
 
-        device.isLocked
+        !device.bikeRentalLED
           ? this.renderer.addClass(el, lockedClass)
           : this.renderer.addClass(el, unlockedClass);
       });
-      //  Status: <span style="font-weight: 600">${device.isLocked ? 'Taken' : 'Available'} </span>
+      //  Status: <span style="font-weight: 600">${!device.bikeRentalLED ? 'Taken' : 'Available'} </span>
       p.setContent(`
-      <h1 class="text-base font-semibold">Device: ${device.deviceName}</h1>
+      <h1 class="text-sm font-semibold">${device.deviceName}</h1>
       <img class="w-9 h-9 mx-auto" src="assets/images/icons/${
-        device.isLocked ? 'locked' : 'unlocked'
+        !device.bikeRentalLED ? 'locked' : 'unlocked'
       }-grey.svg" />
        `);
 
-      p.setLatLng([device.latitude, device.longitude]);
+      p.setLatLng([device.bikeRentalLatitude, device.bikeRentalLongitude]);
     });
   }
 
@@ -106,7 +106,7 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
           'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
       }),
     ],
-    zoom: 7,
+    zoom: 15,
     center: L.latLng(this.LAT_DEFAULT, this.LNG_DEFAULT),
   };
 }
