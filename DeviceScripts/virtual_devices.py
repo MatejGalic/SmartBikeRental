@@ -128,8 +128,8 @@ def read_distance(led):
 
 def run_device_thread(thread_number):
     client = connect_mqtt()
-    # distance = read_distance(1) # for testing purposes only
-    # publish(client, distance, 1, thread_number) # for testing purposes only
+    distance = read_distance(1)
+    publish(client, distance, 0, thread_number)
     client.loop_forever()
 
 
