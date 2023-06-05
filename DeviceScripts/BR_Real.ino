@@ -1,7 +1,15 @@
-#include <TimeLib.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <ArduinoJson.h>
+#include <ctime>
+#include "time.h"
+#include "sntp.h"
+#include "cJSON.h"
+
+const char* ntpServer1 = "pool.ntp.org";
+const char* ntpServer2 = "time.nist.gov";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 3600;
+const char* time_zone = "CET-1CEST,M3.5.0,M10.5.0/3";
 
 // WiFi credentials
 const char* ssid = "ssid";
@@ -11,51 +19,33 @@ const char* password = "pass";
 const char* mqttServer = "161.53.19.19";
 const int mqttPort = 56883;
 const char* mqttTopic = "json/BR_Real/IoTGrupa10";
+const char* mqttSubscribeTopic = "all/BR_Real";
 
 // HC-SR04 Ultrasonic Sensor
 const int trigPin = 4;
 const int echoPin = 5;
+const int ledPin = 3; // External LED
 
-// External LED
-const int ledPin = 3;
+int led = 0;
+long duration;
+int distance;
+float longitude = 15.976398618818015;
+float latitude =  45.811136644362456;
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient);
 
-float longitude = 16.440193;
-float latitude =  43.508133;
+int isTimeAvailable = 0;
 
-float readDistance();
-int extractBikeRentalLED(char* payload);
+int readDistance();
+void timeavailable(struct timeval *t);
+void parseJSON(const char* jsonString);
 void connectToWiFi();
 void connectToMQTT();
-void publish(float distance, int led);
+void publish();
 void callback(char* topic, byte* payload, unsigned int length);
 
-void callback(char* topic, byte* payload, unsigned int length) {
-  Serial.println("Starting callback");
-  char* payloadString = (char*)payload;
-  payloadString[length] = '\0';
-
-  int led = extractBikeRentalLED(payloadString);
-
-  Serial.printf("Got bike rental led: %d", led);
-  if (led == 1) {
-    digitalWrite(ledPin, HIGH);
-
-    unsigned long startTime = millis();
-    while (millis() - startTime < 10000) {
-      int newDistance = readDistance(); 
-      if (newDistance > 5.0 ) {
-        publish(newDistance, 0);
-      }
-      delay(100); 
-    }
-    publish(readDistance(), 0);
-  }
-}
-
-float readDistance() {
+int readDistance() {
   // Trigger the ultrasonic sensor
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -64,27 +54,50 @@ float readDistance() {
   digitalWrite(trigPin, LOW);
 
   // Read the echo duration
-  long duration = pulseIn(echoPin, HIGH);
+  duration = pulseIn(echoPin, HIGH);
   // Calculate the distance based on the speed of sound
-  float distance = duration * 0.034 / 2;
+  distance = duration * 0.034 / 2;
 
   return distance;
 }
 
-int extractBikeRentalLED(char* payload) {
-  DynamicJsonDocument doc(512);
-  DeserializationError error = deserializeJson(doc, payload);
-  int value = -1;
+void timeavailable(struct timeval *t)
+{
+  Serial.println("Got time adjustment from NTP!");
+  isTimeAvailable = 1;
+}
 
-  if (error) {
-    Serial.print("Error: ");
-    Serial.println(error.c_str());
-  } else {
-    if (doc["contentNodes"]["source"]["resourceSpec"] == "BikeRentalLed") {
-      value = (int)doc["contentNodes"]["value"];
+void parseJSON(const char* jsonString) {
+    cJSON* json = cJSON_Parse(jsonString);
+    if (json == NULL) {
+        printf("Failed to parse JSON string.\n");
+        return;
     }
-  }
-  return value;
+
+    cJSON* header = cJSON_GetObjectItem(json, "header");
+    if (header != NULL) {
+        cJSON* timeStamp = cJSON_GetObjectItem(header, "timeStamp");
+    }
+
+    cJSON* body = cJSON_GetObjectItem(json, "body");
+    if (body != NULL) {
+        cJSON* actuator = cJSON_GetObjectItem(body, "BikeRentalActuator");
+        if (actuator != NULL) {
+            cJSON* led = cJSON_GetObjectItem(actuator, "BikeRentalLed");
+        }
+
+        cJSON* hcSr04 = cJSON_GetObjectItem(body, "BikeRentalHC-SR04");
+        if (hcSr04 != NULL) {
+            cJSON* distance = cJSON_GetObjectItem(hcSr04, "BikeRentalDistance");
+        }
+
+        cJSON* gps = cJSON_GetObjectItem(body, "BikeRentalGPS");
+        if (gps != NULL) {
+            cJSON* latitude = cJSON_GetObjectItem(gps, "BikeRentalLatitude");
+            cJSON* longitude = cJSON_GetObjectItem(gps, "BikeRentalLongitude");
+        }
+    }
+    cJSON_Delete(json);
 }
 
 void connectToWiFi() {
@@ -97,14 +110,12 @@ void connectToWiFi() {
 }
 
 void connectToMQTT() {
-  mqttClient.setCallback(callback);
-  mqttClient.setServer(mqttServer, mqttPort);
   while (!mqttClient.connected()) {
     Serial.println("Connecting to MQTT...");
     if (mqttClient.connect("clientID")) {
+      mqttClient.setBufferSize(2048);
+      mqttClient.subscribe(mqttSubscribeTopic);
       Serial.println("Connected to MQTT");
-      bool result = mqttClient.subscribe("all/BR_Real");
-      Serial.printf("Subscribed: %d\n", result);
     } else {
       Serial.print("Failed to connect to MQTT, rc=");
       Serial.println(mqttClient.state());
@@ -113,29 +124,64 @@ void connectToMQTT() {
   }
 }
 
-void publish(float distance, int led) {
-    time_t timestamp = now();
+void publish() {
+    while(!isTimeAvailable) {
+      mqttClient.loop();
+    }
+    time_t timestamp = time(nullptr);
+    long long int timestampINT = ((long long int)timestamp + 7200) * 1000;
+
+    distance = readDistance();
+    Serial.printf("HC-SR04 distance: %d\n", distance);
+
     char msg[300];
     snprintf(msg, sizeof(msg),
-        "\"header\":{\"timeStamp\":%ld},"
+        "{\"header\":{\"timeStamp\":%lld},"
         "\"body\":{"
         "\"BikeRentalActuator\":{\"BikeRentalLed\":%d},"
-        "\"BikeRentalHC-SR04\":{\"BikeRentalDistance\":%.2f},"
+        "\"BikeRentalHC-SR04\":{\"BikeRentalDistance\":%d},"
         "\"BikeRentalGPS\":{\"BikeRentalLatitude\":%f,\"BikeRentalLongitude\":%f}}}", 
-          timestamp, led, distance, latitude, longitude);
+          timestampINT, led, distance, latitude, longitude);
+    parseJSON(msg);
 
-    Serial.printf(msg);
-    Serial.print("\n");
-
-    // Publish the message
     bool status = mqttClient.publish(mqttTopic, msg);
 
-    // Check the publish status
     if (status) {
-      Serial.printf("Sending `%s` to topic `%s`\n", msg, mqttTopic);
+      Serial.printf("Sending this message to the topic %s:\n", mqttTopic);
+      Serial.printf("%s\n", msg);
     } else {
-      Serial.printf("Failed to send message to topic %s.", mqttTopic);
+      Serial.printf("Failed to send message to topic %s. MQTTClient connected: %d\n", mqttTopic, mqttClient.connected());
     }
+}
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  int cnt = 0;
+  for(int i=0; i<length;i++) {
+    if(payload[i] == 'L') {
+      ++cnt;
+    } else if(cnt == 1 && payload[i] == 'e') {
+      ++cnt;
+    }else if(cnt == 2 && payload[i] == 'd') {
+      if(payload[i+12] == 49) {
+        led = 1;
+      }
+      break;
+    } else {
+      cnt = 0;
+    }
+  }
+
+  Serial.printf("Received bike LED: %d\n", led);
+
+  if(led == 1) { 
+    digitalWrite(ledPin, HIGH); 
+    Serial.println("Bike unlocked");
+    delay(10000);
+    digitalWrite(ledPin, LOW);
+    led = 0;
+    Serial.println("Bike locked"); 
+    publish();
+  }
 }
 
 void setup() {
@@ -145,46 +191,22 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW); 
 
+  sntp_set_time_sync_notification_cb( timeavailable );
+  sntp_servermode_dhcp(1);  
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2);
+
   connectToWiFi();
+  mqttClient.setServer(mqttServer, mqttPort);
+  mqttClient.setCallback(callback);
   connectToMQTT();
-  delay(2000);
+  delay(5000);
+
+  publish();
 }
 
-void reconnect() {
-  while (!mqttClient.connected()) {
-    Serial.println("Connecting to MQTT...");
-    if (mqttClient.connect("clientID")) {
-      Serial.println("Connected to MQTT");
-      bool result = mqttClient.subscribe("all/BR_Real");
-      Serial.printf("Subscribed: %d\n", result);
-    } else {
-      Serial.print("Failed to connect to MQTT, rc=");
-      Serial.println(mqttClient.state());
-      delay(2000);
-    }
-  }
-}
-
-bool send = true; // for testing
 void loop() {
   if (!mqttClient.connected()) {
-    reconnect();
+    connectToMQTT();
   }
   mqttClient.loop(); // Maintain  MQTT communication
-  float distance = readDistance();
-
-  if(send) {  // testing publish
-    send = false;
-    publish(distance, 0);
-  }
-
-  if (distance < 0.5) {
-    digitalWrite(ledPin, LOW); 
-  } else {
-    digitalWrite(ledPin, HIGH); 
-  }
-
-  // Serial.printf("Distance: %.2f cm\n", distance);
-
-  delay(1000);
 }
