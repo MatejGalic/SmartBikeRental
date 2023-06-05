@@ -7,5 +7,6 @@
         public bool BikeRentalLED { get; set; }
         public double BikeRentalLatitude { get; set; }
         public double BikeRentalLongitude { get; set; }
+        public bool BikeRentalTaken { get; set; }
     }
 }

@@ -9,12 +9,12 @@
     <p><span class="font-medium">Device:</span> {{ device.deviceName }}</p>
     <p>
       <span class="font-medium"> Location:</span>
-      {{ device.bikeRentalLatitude | number : "1.3-3" }},
-      {{ device.bikeRentalLongitude | number : "1.3-3" }}
+      {{ device.bikeRentalLatitude }},
+      {{ device.bikeRentalLongitude }}
     </p>
     <p>
       <span class="font-medium"> Status:</span>
-      {{ !device.bikeRentalLED ? "Taken" : "Available" }}
+      {{ !device.bikeRentalTaken ? "Taken" : "Available" }}
     </p>
   </div>
 

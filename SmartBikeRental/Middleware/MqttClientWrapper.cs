@@ -170,7 +170,8 @@ public class MqttClientWrapper : IMqttClientWrapper
                 DeviceName = deviceName,
                 BikeRentalLED = contentNodes.FirstOrDefault(n => n.Source.GatewayGroup == deviceName && n.Source.ResourceSpec == "BikeRentalLed")?.Value == 1,
                 BikeRentalLatitude = contentNodes.FirstOrDefault(n => n.Source.GatewayGroup == deviceName && n.Source.ResourceSpec == "BikeRentalLatitude")?.Value ?? 0.0,
-                BikeRentalLongitude = contentNodes.FirstOrDefault(n => n.Source.GatewayGroup == deviceName && n.Source.ResourceSpec == "BikeRentalLongitude")?.Value ?? 0.0
+                BikeRentalLongitude = contentNodes.FirstOrDefault(n => n.Source.GatewayGroup == deviceName && n.Source.ResourceSpec == "BikeRentalLongitude")?.Value ?? 0.0,
+                BikeRentalTaken = (contentNodes.FirstOrDefault(n => n.Source.GatewayGroup == deviceName && n.Source.ResourceSpec == "BikeRentalDistance")?.Value ?? 0.0) <= 5
             };
 
             devices.Add(device);

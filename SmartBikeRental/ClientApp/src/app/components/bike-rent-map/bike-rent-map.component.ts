@@ -53,6 +53,7 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
             autoClose: false,
             closeOnClick: false,
             closeOnEscapeKey: false,
+            autoPan: false,
           })
             .setLatLng([this.LAT_DEFAULT + 1, this.LNG_DEFAULT + 1])
             .setContent('loading data')
