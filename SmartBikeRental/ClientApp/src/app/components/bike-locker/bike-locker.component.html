@@ -1,8 +1,8 @@
 <div
   class="rounded shadow-md p-2 flex flex-row gap-3 justify-between"
   [ngClass]="{
-    'bg-red-300': !device.bikeRentalLED,
-    'bg-green-200': device.bikeRentalLED
+    'bg-red-300': device.bikeRentalTaken,
+    'bg-green-200': !device.bikeRentalTaken
   }"
 >
   <div>
@@ -14,7 +14,7 @@
     </p>
     <p>
       <span class="font-medium"> Status:</span>
-      {{ !device.bikeRentalTaken ? "Taken" : "Available" }}
+      {{ device.bikeRentalTaken ? "Taken" : "Available" }}
     </p>
   </div>
 

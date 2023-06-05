@@ -11,8 +11,8 @@ import { SignalRService } from 'src/app/core/services/signal-r.service';
   styleUrls: ['./bike-rent-map.component.scss'],
 })
 export class BikeRentMapComponent implements OnInit, OnDestroy {
-  private readonly LAT_DEFAULT = 45.8153;
-  private readonly LNG_DEFAULT = 15.9665;
+  private readonly LAT_DEFAULT = 45.807902;
+  private readonly LNG_DEFAULT = 15.974329;
   private map: L.Map;
   private popups: L.Popup[] = [];
   private destroy$: Subject<void> = new Subject<void>();
@@ -76,15 +76,15 @@ export class BikeRentMapComponent implements OnInit, OnDestroy {
       let pPointerEl = pHtmlEl.children[1].children[0];
 
       [pContainerEl, pPointerEl].forEach((el) => {
-        const unlockedClass = '!bg-green-300';
-        const lockedClass = '!bg-red-400';
+        const availableClass = '!bg-green-300';
+        const takenClass = '!bg-red-400';
 
-        this.renderer.removeClass(el, lockedClass);
-        this.renderer.removeClass(el, unlockedClass);
+        this.renderer.removeClass(el, takenClass);
+        this.renderer.removeClass(el, availableClass);
 
-        !device.bikeRentalLED
-          ? this.renderer.addClass(el, lockedClass)
-          : this.renderer.addClass(el, unlockedClass);
+        device.bikeRentalTaken
+          ? this.renderer.addClass(el, takenClass)
+          : this.renderer.addClass(el, availableClass);
       });
       //  Status: <span style="font-weight: 600">${!device.bikeRentalLED ? 'Taken' : 'Available'} </span>
       p.setContent(`

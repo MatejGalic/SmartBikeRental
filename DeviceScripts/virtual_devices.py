@@ -78,7 +78,7 @@ def on_message(client, userdata, msg):
         print("Device-" + str(thread_number) + " is locking bike LED is " + str(led))
         lock_bike()
         print("Device-" + str(thread_number) + " bike locked. LED is " + str(led))
-        publish(client, read_distance(led), led, thread_number)
+        publish(client, read_distance(), led, thread_number)
 
 
 def publish(client, distance, led, thread_number):
@@ -119,16 +119,17 @@ def unlock_bike():
     led = 1
 
 
-def read_distance(led):
-    if led == 0:
+def read_distance():
+    bike = random.randint(0,1)
+    if bike == 0:
         return 5
-    elif led == 1:
-        return random.randint(6, 100000)
+    elif bike == 1:
+        return random.randint(6, 1000)
 
 
 def run_device_thread(thread_number):
     client = connect_mqtt()
-    distance = read_distance(1)
+    distance = read_distance()
     publish(client, distance, 0, thread_number)
     client.loop_forever()
 
