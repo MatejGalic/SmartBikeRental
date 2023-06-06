@@ -155,7 +155,8 @@ public class MqttClientWrapper : IMqttClientWrapper
     {
         if (!contentNodes.Any())
         {
-            fillNodes();
+            var newNodes = fillNodes().GetAwaiter().GetResult();
+            contentNodes = newNodes;
         }
 
 
@@ -181,7 +182,7 @@ public class MqttClientWrapper : IMqttClientWrapper
     }
 
 
-    private async void fillNodes()
+    private async Task<List<ContentNodeDto>> fillNodes()
     {
         var httpClientHandler = new HttpClientHandler();
         httpClientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => true;
@@ -207,11 +208,12 @@ public class MqttClientWrapper : IMqttClientWrapper
 
             List<ContentNodeDto> newNodes = data.ContentNodes.Where(obj => obj.Source.GatewayGroup.StartsWith("BR_")).ToList();
 
-            contentNodes = newNodes;
+            return newNodes;
         }
         else
         {
             Console.WriteLine($"HTTP request failed with status code: {response.StatusCode}");
+            return new List<ContentNodeDto>();
         }
     }
 }
